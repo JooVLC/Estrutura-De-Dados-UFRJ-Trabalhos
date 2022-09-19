@@ -27,7 +27,7 @@ e imprimir a matriz obtida em cada metodo.
 #define EXIBIR_TEMPO_GASTO_EM_FUNC true
 #define REALIZAR_ALGORITMO_HIBRIDO true
 #define EXIBIR_RESULTADO_MATRIZES true
-#define TAM_MATRIZ_PEQUENA 400ul
+#define TAM_MATRIZ_PEQUENA 2048ul
 
 void* alocar_matriz_quadrada(size_t tam);
 void desalocar_matriz_quadrada(size_t tam, int (*matriz)[tam]);
@@ -38,13 +38,15 @@ void* multiplicao_tradicional(size_t qtd_linhas, size_t qtd_colunas,
     int matriz_a[qtd_linhas][qtd_colunas], 
     int matriz_b[qtd_linhas][qtd_colunas]);
 
-void* soma_matriz(size_t qtd_linhas, size_t qtd_colunas, 
+void soma_matriz(size_t qtd_linhas, size_t qtd_colunas, 
     int matriz_a[qtd_linhas][qtd_colunas], 
-    int matriz_b[qtd_linhas][qtd_colunas]);
+    int matriz_b[qtd_linhas][qtd_colunas],
+    int matriz_out[qtd_linhas][qtd_colunas]);
 
-void* subtracao_matriz(size_t qtd_linhas, size_t qtd_colunas, 
+void subtracao_matriz(size_t qtd_linhas, size_t qtd_colunas, 
     int matriz_a[qtd_linhas][qtd_colunas], 
-    int matriz_b[qtd_linhas][qtd_colunas]);
+    int matriz_b[qtd_linhas][qtd_colunas],
+    int matriz_out[qtd_linhas][qtd_colunas]);
 
 void* multiplicao_strassen(size_t qtd_linhas, size_t qtd_colunas, 
     int matriz_a[qtd_linhas][qtd_colunas], 
@@ -176,13 +178,11 @@ void* multiplicao_tradicional(size_t qtd_linhas, size_t qtd_colunas,
     return matriz_out;
 }
 
-void* soma_matriz(size_t qtd_linhas, size_t qtd_colunas, 
+void soma_matriz(size_t qtd_linhas, size_t qtd_colunas, 
     int matriz_a[qtd_linhas][qtd_colunas], 
-    int matriz_b[qtd_linhas][qtd_colunas])
+    int matriz_b[qtd_linhas][qtd_colunas],
+    int matriz_out[qtd_linhas][qtd_colunas])
 {
-    size_t tam = qtd_linhas;
-    int (*matriz_out)[tam] = alocar_matriz_quadrada(tam);
-
     for(size_t linha = 0; linha < qtd_linhas; linha++)
     {
         for(size_t coluna = 0; coluna < qtd_colunas; coluna++)
@@ -190,17 +190,13 @@ void* soma_matriz(size_t qtd_linhas, size_t qtd_colunas,
             matriz_out[linha][coluna] = matriz_a[linha][coluna] + matriz_b[linha][coluna];
         }
     }
-
-    return matriz_out;
 }
 
-void* subtracao_matriz(size_t qtd_linhas, size_t qtd_colunas, 
+void subtracao_matriz(size_t qtd_linhas, size_t qtd_colunas, 
     int matriz_a[qtd_linhas][qtd_colunas], 
-    int matriz_b[qtd_linhas][qtd_colunas])
+    int matriz_b[qtd_linhas][qtd_colunas],
+    int matriz_out[qtd_linhas][qtd_colunas])
 {
-    size_t tam = qtd_linhas;
-    int (*matriz_out)[tam] = alocar_matriz_quadrada(tam);
-
     for(size_t linha = 0; linha < qtd_linhas; linha++)
     {
         for(size_t coluna = 0; coluna < qtd_colunas; coluna++)
@@ -208,8 +204,6 @@ void* subtracao_matriz(size_t qtd_linhas, size_t qtd_colunas,
             matriz_out[linha][coluna] = matriz_a[linha][coluna] - matriz_b[linha][coluna];
         }
     }
-
-    return matriz_out;
 }
 
 void* multiplicao_strassen(size_t qtd_linhas, size_t qtd_colunas, 
@@ -235,25 +229,40 @@ void* multiplicao_strassen(size_t qtd_linhas, size_t qtd_colunas,
     int(*f)[metade_tam] = split_strassen(tam, matriz_b, 1);
     int(*g)[metade_tam] = split_strassen(tam, matriz_b, 2);
     int(*h)[metade_tam] = split_strassen(tam, matriz_b, 3);
-    
-    int(*a_mais_d)[metade_tam] = soma_matriz(metade_tam, metade_tam, a, d);
-    int(*e_mais_h)[metade_tam] = soma_matriz(metade_tam, metade_tam, e, h);
-    int(*g_menos_e)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, g, e);
-    int(*a_mais_b)[metade_tam] = soma_matriz(metade_tam, metade_tam, a, b);
-    int(*b_menos_d)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, b, d);
-    int(*g_mais_h)[metade_tam] = soma_matriz(metade_tam, metade_tam, g, h);
-    int(*f_menos_h)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, f, h);
-    int(*c_mais_d)[metade_tam] = soma_matriz(metade_tam, metade_tam, c, d);
-    int(*a_menos_c)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, a, c);
-    int(*e_mais_f)[metade_tam] = soma_matriz(metade_tam, metade_tam, e, f);
 
-    int(*p1)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, a_mais_d, e_mais_h);
-    int(*p2)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, d, g_menos_e);
-    int(*p3)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, a_mais_b, h);
-    int(*p4)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, b_menos_d, g_mais_h);
-    int(*p5)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, a, f_menos_h);
-    int(*p6)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, c_mais_d, e);
-    int(*p7)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, a_menos_c, e_mais_f);
+    int (*matriz_resultado_1)[metade_tam] = alocar_matriz_quadrada(metade_tam);
+    int (*matriz_resultado_2)[metade_tam] = alocar_matriz_quadrada(metade_tam);
+    
+    soma_matriz(metade_tam, metade_tam, a, d, matriz_resultado_1);
+    soma_matriz(metade_tam, metade_tam, e, h, matriz_resultado_2);
+    int(*p1)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, matriz_resultado_1, matriz_resultado_2);
+    //p1 = (a + d) * (e + h)
+
+    subtracao_matriz(metade_tam, metade_tam, g, e, matriz_resultado_1);
+    int(*p2)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, d, matriz_resultado_1);
+    //p2 = d * (g - e)
+
+    soma_matriz(metade_tam, metade_tam, a, b, matriz_resultado_1);
+    int(*p3)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, matriz_resultado_1, h);
+    //p3 = (a + b) * h
+
+    subtracao_matriz(metade_tam, metade_tam, b, d, matriz_resultado_1);
+    soma_matriz(metade_tam, metade_tam, g, h, matriz_resultado_2);
+    int(*p4)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, matriz_resultado_1, matriz_resultado_2);
+    //p4 = (b - d) * (g + h)
+
+    subtracao_matriz(metade_tam, metade_tam, f, h, matriz_resultado_1);
+    int(*p5)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, a, matriz_resultado_1);
+    //p5 = a * (f - h)
+
+    soma_matriz(metade_tam, metade_tam, c, d, matriz_resultado_1);
+    int(*p6)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, matriz_resultado_1, e);
+    //p6 = (c + d) * e
+
+    subtracao_matriz(metade_tam, metade_tam, a, c, matriz_resultado_1);
+    soma_matriz(metade_tam, metade_tam, e, f, matriz_resultado_2);
+    int(*p7)[metade_tam] = multiplicao_strassen(metade_tam, metade_tam, matriz_resultado_1, matriz_resultado_2);
+    //p6 = (a - c) * (e + f)
 
     desalocar_matriz_quadrada(metade_tam, a);
     desalocar_matriz_quadrada(metade_tam, b);
@@ -263,48 +272,43 @@ void* multiplicao_strassen(size_t qtd_linhas, size_t qtd_colunas,
     desalocar_matriz_quadrada(metade_tam, f);
     desalocar_matriz_quadrada(metade_tam, g);
     desalocar_matriz_quadrada(metade_tam, h);
-    desalocar_matriz_quadrada(metade_tam, a_mais_d);
-    desalocar_matriz_quadrada(metade_tam, e_mais_h);
-    desalocar_matriz_quadrada(metade_tam, g_menos_e);
-    desalocar_matriz_quadrada(metade_tam, a_mais_b);
-    desalocar_matriz_quadrada(metade_tam, b_menos_d);
-    desalocar_matriz_quadrada(metade_tam, g_mais_h);
-    desalocar_matriz_quadrada(metade_tam, f_menos_h);
-    desalocar_matriz_quadrada(metade_tam, c_mais_d);
-    desalocar_matriz_quadrada(metade_tam, a_menos_c);
-    desalocar_matriz_quadrada(metade_tam, e_mais_f);
 
     // Criando C11:
-    int(*p1_mais_p2)[metade_tam] = soma_matriz(metade_tam, metade_tam, p1, p2);
+    //C11 = p1 + p2 - p2 + p4
+    int(*C11)[metade_tam] = alocar_matriz_quadrada(metade_tam);
 
-    int(*p1_mais_p2_menos_p3)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, p1_mais_p2, p3);
-    desalocar_matriz_quadrada(metade_tam, p1_mais_p2);
+    soma_matriz(metade_tam, metade_tam, p1, p2, matriz_resultado_1);
 
-    int(*p1_mais_p2_menos_p3_mais_p4)[metade_tam] = soma_matriz(metade_tam, metade_tam, p1_mais_p2_menos_p3, p4);
-    desalocar_matriz_quadrada(metade_tam, p1_mais_p2_menos_p3);
+    subtracao_matriz(metade_tam, metade_tam, matriz_resultado_1, p3, matriz_resultado_2);
 
-    int(*C11)[metade_tam] = p1_mais_p2_menos_p3_mais_p4;
+    soma_matriz(metade_tam, metade_tam, matriz_resultado_2, p4, C11);
     //Finalizado criação do C11
 
     // Criando C12:
-    int(*C12)[metade_tam] = soma_matriz(metade_tam, metade_tam, p5, p3);
+    //C12 = p5 + p3
+    int(*C12)[metade_tam] = alocar_matriz_quadrada(metade_tam);
+    soma_matriz(metade_tam, metade_tam, p5, p3, C12);
     //Finalizado criação do C12
 
     // Criando C21:
-    int(*C21)[metade_tam] = soma_matriz(metade_tam, metade_tam, p6, p2);
+    //C21 = p6 + p2
+    int(*C21)[metade_tam] = alocar_matriz_quadrada(metade_tam);
+    soma_matriz(metade_tam, metade_tam, p6, p2, C21);
     //Finalizado criação do C21
 
     // Criando C22:
-    int(*p5_mais_p1)[metade_tam] = soma_matriz(metade_tam, metade_tam, p5, p1);
+    //C22 = p5 + p1 - p6 - p7
+    int(*C22)[metade_tam] = alocar_matriz_quadrada(metade_tam);
 
-    int(*p5_mais_p1_menos_p6)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, p5_mais_p1, p6);
-    desalocar_matriz_quadrada(metade_tam, p5_mais_p1);
+    soma_matriz(metade_tam, metade_tam, p5, p1, matriz_resultado_1);
 
-    int(*p5_mais_p1_menos_p6_menos_p7)[metade_tam] = subtracao_matriz(metade_tam, metade_tam, p5_mais_p1_menos_p6, p7);
-    desalocar_matriz_quadrada(metade_tam, p5_mais_p1_menos_p6);
+    subtracao_matriz(metade_tam, metade_tam, matriz_resultado_1, p6, matriz_resultado_2);
 
-    int(*C22)[metade_tam] = p5_mais_p1_menos_p6_menos_p7;
+    subtracao_matriz(metade_tam, metade_tam, matriz_resultado_2, p7, C22);
     //Finalizado criação do C22
+
+    desalocar_matriz_quadrada(metade_tam, matriz_resultado_1);
+    desalocar_matriz_quadrada(metade_tam, matriz_resultado_2);
 
     desalocar_matriz_quadrada(metade_tam, p1);
     desalocar_matriz_quadrada(metade_tam, p2);
