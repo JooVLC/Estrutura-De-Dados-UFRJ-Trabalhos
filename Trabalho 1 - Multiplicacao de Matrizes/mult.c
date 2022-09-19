@@ -27,7 +27,7 @@ e imprimir a matriz obtida em cada metodo.
 #define EXIBIR_TEMPO_GASTO_EM_FUNC true
 #define REALIZAR_ALGORITMO_HIBRIDO true
 #define EXIBIR_RESULTADO_MATRIZES true
-#define TAM_MATRIZ_PEQUENA 2048ul
+#define TAM_MATRIZ_PEQUENA 400ul
 
 void* alocar_matriz_quadrada(size_t tam);
 void desalocar_matriz_quadrada(size_t tam, int (*matriz)[tam]);
@@ -81,7 +81,13 @@ int main(int argc, char const *argv[])
             return -1;
         }
     } else {
-        scanf("%ld", &tam_matriz);
+        int scanf_return = scanf("%ld", &tam_matriz);
+
+        if(scanf_return != 1)
+        {
+            puts("Erro ao analisar o input.");
+        }
+
         input_pelo_usuario = true;
     }
 
@@ -153,7 +159,12 @@ void preencher_matriz_quadrada_input(size_t tam, int matriz[tam][tam])
     {
         for(size_t coluna = 0; coluna < tam; coluna++)
         {
-            scanf("%d", &matriz[linha][coluna]);
+            int scanf_return = scanf("%d", &matriz[linha][coluna]);
+            
+            if(scanf_return != 1)
+            {
+                puts("Erro ao analisar o input.");
+            }
         }
     }
 }
