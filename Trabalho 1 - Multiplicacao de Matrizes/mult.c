@@ -27,7 +27,7 @@ e imprimir a matriz obtida em cada metodo.
 #define EXIBIR_TEMPO_GASTO_EM_FUNC true
 #define REALIZAR_ALGORITMO_HIBRIDO true
 #define EXIBIR_RESULTADO_MATRIZES true
-#define TAM_MATRIZ_PEQUENA 600ul
+#define TAM_MATRIZ_PEQUENA 400ul
 
 void* alocar_matriz_quadrada(size_t tam);
 void desalocar_matriz_quadrada(size_t tam, int (*matriz)[tam]);
